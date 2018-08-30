@@ -12,7 +12,7 @@ public class Partida {
 	private String estadoPartida = "Em_Andamento";
 	
 
-	private String estadoTurno = "InÃ­cio_Turno";
+	private String estadoTurno = "Início_Turno";
 	private String estadoTile = "Tile_Posicionado";
 	private Jogador [] jogadores;
 	private int jogadorAtual = 0;
@@ -46,6 +46,9 @@ public class Partida {
 	}
 
 	public String relatorioTurno() {
+		if (estadoPartida == "Partida_Finalizada") {
+			throw new ExcecaoJogo("Partida finalizada");
+		}
 		return "Jogador: " + jogadores[jogadorAtual].getCor() +"\nTile: " + proximoTile + "\nStatus: "+ getEstadoTile();
 	}
 
@@ -60,7 +63,13 @@ public class Partida {
 	}
 
 	public Partida finalizarTurno() {
-		pegarProximoTile();
+		if(tiles.pegar() == null) {
+			setEstadoPartida("Partida_Finalizada");			
+		}
+		else {
+			setEstadoPartida("Em_Andamento");
+			pegarProximoTile();
+		}
 		return this;
 	}
 
