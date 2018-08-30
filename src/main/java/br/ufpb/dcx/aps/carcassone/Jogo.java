@@ -9,14 +9,14 @@ public class Jogo {
 		if(sequencia.length < 2){
 			throw new ExcecaoJogo("Cada partida deve ter uma sequência de pelo menos dois jogadores");
 		}
-		for (int i = 0; i < sequencia.length- 1; i++){
-			for(int j = 1; j < sequencia.length; i++){
+		for (int i = 0; i < sequencia.length - 1 ; i++){
+			for(int j = 1; j < sequencia.length; j++){
 				if(sequencia[i]==sequencia[j]){
 					throw new ExcecaoJogo("Não pode haver repetição de cores na sequência de jogadores");
 				}
 	        }
 		}
-		return new Partida(tiles);
+		return new Partida(tiles, sequencia);
 	}
 
 

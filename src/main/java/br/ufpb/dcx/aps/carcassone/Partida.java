@@ -8,18 +8,45 @@ public class Partida {
 	private BolsaDeTiles tiles;
 	private Tile proximoTile;
 	private TabuleiroFlexivel tabuleiro = new TabuleiroFlexivel("  ");
+	
+	private String estadoPartida = "Em_Andamento";
+	
 
-	Partida(BolsaDeTiles tiles) {
+	private String estadoTurno = "Início_Turno";
+	private String estadoTile = "Tile_Posicionado";
+	private Jogador [] jogadores;
+	private int jogadorAtual = 0;
+	
+	
+	Partida(BolsaDeTiles tiles, Cor ...sequencia) {
 		this.tiles = tiles;
 		pegarProximoTile();
+		jogadores = carregaJogadores(sequencia);
 	}
 
+	public Jogador [] carregaJogadores(Cor... sequencia){
+		Jogador [] temp = new Jogador[sequencia.length];
+		for(int i =0; i < sequencia.length; i ++) {
+			temp[i] = new Jogador(sequencia[i].name()); 
+		}
+		return temp;
+	}
+	
+	
+	
 	public String relatorioPartida() {
-		return null;
+		String relatorio = "Status: " + this.getEstadoPartida() + "\nJogadores: ";
+		for(int j = 0; j < jogadores.length; j++) {
+			if(j ==  jogadores.length-1) {
+				relatorio +=  jogadores[j].toString();
+			}else
+				relatorio += jogadores[j].toString() + "; ";
+			}
+		return relatorio;
 	}
 
 	public String relatorioTurno() {
-		return null;
+		return "Jogador: " + jogadores[jogadorAtual].getCor() +"\nTile: " + proximoTile + "\nStatus: "+ getEstadoTile();
 	}
 
 	public Partida girarTile() {
@@ -75,6 +102,30 @@ public class Partida {
 	}
 
 	public String relatorioTabuleiro() {
-		return null;
+		return proximoTile.toString();
+	}
+	
+	public String getEstadoPartida() {
+		return estadoPartida;
+	}
+
+	public void setEstadoPartida(String estadoPartida) {
+		this.estadoPartida = estadoPartida;
+	}
+
+	public String getEstadoTurno() {
+		return estadoTurno;
+	}
+
+	public void setEstadoTurno(String estadoTurno) {
+		this.estadoTurno = estadoTurno;
+	}
+
+	public String getEstadoTile() {
+		return estadoTile;
+	}
+
+	public void setEstadoTile(String estadoTile) {
+		this.estadoTile = estadoTile;
 	}
 }
