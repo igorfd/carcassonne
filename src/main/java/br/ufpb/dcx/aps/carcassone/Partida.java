@@ -25,6 +25,7 @@ public class Partida {
 		this.tiles = tiles;
 		pegarProximoTile();
 		jogadores = carregaJogadores(sequencia);
+		
 	}
 
 	public Jogador [] carregaJogadores(Cor... sequencia){
@@ -61,9 +62,14 @@ public class Partida {
 		if(TilePosicionado) {
 			throw new ExcecaoJogo("Não pode girar tile já posicionado");
 		}
+		if(proximoTile == null) {
+			estadoPartida = "Partida_Finalizada";
+			throw new ExcecaoJogo("Não pode girar tiles com a partida finalizada");
+		}
 		proximoTile.girar();
 		return this;
 	}
+	
 	private void pegarProximoTile() {
 		tileAnterior = proximoTile;
 		proximoTile = tiles.pegar();
