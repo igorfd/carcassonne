@@ -12,12 +12,15 @@ public class Partida {
 	private String estadoPartida = "Em_Andamento";
 	
 
-	private String estadoTurno = "In�cio_Turno";
-	private String estadoTile = "Tile_Posicionado";
+	private String estadoTurno = "Início_Turno";
+	private boolean TilePosicionado = true;
 	private Jogador [] jogadores;
 	private int jogadorAtual = 0;
 	
+	private int countTurno = 1;
+	private Tile tileAnterior;
 	
+
 	Partida(BolsaDeTiles tiles, Cor ...sequencia) {
 		this.tiles = tiles;
 		pegarProximoTile();
@@ -49,27 +52,36 @@ public class Partida {
 		if (estadoPartida == "Partida_Finalizada") {
 			throw new ExcecaoJogo("Partida finalizada");
 		}
-		return "Jogador: " + jogadores[jogadorAtual].getCor() +"\nTile: " + proximoTile + "\nStatus: "+ getEstadoTile();
+		if (TilePosicionado) 
+			setEstadoTurno("Tile_Posicionado");
+		return "Jogador: " + jogadores[jogadorAtual].getCor() +"\nTile: " + proximoTile + "\nStatus: "+ getEstadoTurno();
 	}
 
 	public Partida girarTile() {
+		if(TilePosicionado) {
+			throw new ExcecaoJogo("Não pode girar tile já posicionado");
+		}
 		proximoTile.girar();
 		return this;
 	}
-
 	private void pegarProximoTile() {
+		tileAnterior = proximoTile;
 		proximoTile = tiles.pegar();
-		proximoTile.reset();
+		if(proximoTile != null) {
+			proximoTile.reset();
+		}else {
+			setEstadoPartida("Partida_Finalizada");
+		}
 	}
 
+	
 	public Partida finalizarTurno() {
-		if(tiles.pegar() == null) {
-			setEstadoPartida("Partida_Finalizada");			
-		}
-		else {
-			setEstadoPartida("Em_Andamento");
-			pegarProximoTile();
-		}
+		setEstadoPartida("Em_Andamento");
+		TilePosicionado = false;
+		pegarProximoTile();
+		setCountTurno(countTurno+=1);
+		jogadorAtual++;
+		
 		return this;
 	}
 
@@ -111,7 +123,11 @@ public class Partida {
 	}
 
 	public String relatorioTabuleiro() {
-		return proximoTile.toString();
+		if(countTurno==1){
+			return proximoTile.toString();
+		}
+		return tileAnterior.toString();
+		
 	}
 	
 	public String getEstadoPartida() {
@@ -131,10 +147,17 @@ public class Partida {
 	}
 
 	public String getEstadoTile() {
-		return estadoTile;
+		return (TilePosicionado) ? "Tile_Posicionado": "Tile_Não_Posicionado";
 	}
 
-	public void setEstadoTile(String estadoTile) {
-		this.estadoTile = estadoTile;
+	public void setEstadoTile(boolean estadoTile) {
+		this.TilePosicionado = estadoTile;
+	}
+	public int getCountTurno() {
+		return countTurno;
+	}
+
+	public void setCountTurno(int countTurno) {
+		this.countTurno = countTurno;
 	}
 }
