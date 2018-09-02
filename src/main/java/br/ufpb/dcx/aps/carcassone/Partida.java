@@ -25,7 +25,10 @@ public class Partida {
 		this.tiles = tiles;
 		pegarProximoTile();
 		jogadores = carregaJogadores(sequencia);
+		setEstadoPartida("Em_Andamento");
+		tabuleiro.adicionarPrimeiroTile(proximoTile);
 		
+
 	}
 
 	public Jogador [] carregaJogadores(Cor... sequencia){
@@ -92,8 +95,14 @@ public class Partida {
 	}
 
 	public Partida posicionarTile(Tile tileReferencia, Lado ladoTileReferencia) {
+		if(getEstadoTile().equals("Tile_Posicionado")) {
+			throw new ExcecaoJogo("Não pode reposicionar tile já posicionado");
+		}
 		tabuleiro.posicionar(tileReferencia, ladoTileReferencia, proximoTile);
+		setEstadoTurno("Tile_Posicionado");
 		return this;
+
+		
 	}
 
 	public Partida posicionarMeepleEstrada(Lado lado) {
@@ -132,6 +141,13 @@ public class Partida {
 		if(countTurno==1){
 			return proximoTile.toString();
 		}
+		if(getEstadoTurno().equals("Tile_Posicionado")){
+			return tileAnterior.toString()+proximoTile.toString(); 
+		}
+		if(!getEstadoTurno().equals("Tile_Posicionado")) {
+		   return tileAnterior.toString(); 
+		}
+
 		return tileAnterior.toString();
 		
 	}
