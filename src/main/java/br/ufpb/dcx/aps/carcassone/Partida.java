@@ -39,8 +39,6 @@ public class Partida {
 		return temp;
 	}
 	
-	
-	
 	public String relatorioPartida() {
 		String relatorio = "Status: " + this.getEstadoPartida() + "\nJogadores: ";
 		for(int j = 0; j < jogadores.length; j++) {
@@ -52,13 +50,20 @@ public class Partida {
 		return relatorio;
 	}
 
-	public String relatorioTurno() {
-		if (estadoPartida == "Partida_Finalizada") {
+	public void verificaPartidaFinalizada() {
+		if (estadoPartida == "Partida_Finalizada") 
 			throw new ExcecaoJogo("Partida finalizada");
-		}
+	}
+	
+	public String montaRelatorioTurno() {
+		return "Jogador: " + jogadores[jogadorAtual].getCor() +"\nTile: " + proximoTile + "\nStatus: "+ getEstadoTurno();
+	}
+	
+	public String relatorioTurno() {
+		this.verificaPartidaFinalizada();
 		if (TilePosicionado) 
 			setEstadoTurno("Tile_Posicionado");
-		return "Jogador: " + jogadores[jogadorAtual].getCor() +"\nTile: " + proximoTile + "\nStatus: "+ getEstadoTurno();
+		return montaRelatorioTurno();
 	}
 
 	public Partida girarTile() {
@@ -90,19 +95,16 @@ public class Partida {
 		pegarProximoTile();
 		setCountTurno(countTurno+=1);
 		jogadorAtual++;
-		
 		return this;
 	}
 
 	public Partida posicionarTile(Tile tileReferencia, Lado ladoTileReferencia) {
-		if(getEstadoTile().equals("Tile_Posicionado")) {
+		if(TilePosicionado) {
 			throw new ExcecaoJogo("Não pode reposicionar tile já posicionado");
 		}
 		tabuleiro.posicionar(tileReferencia, ladoTileReferencia, proximoTile);
 		setEstadoTurno("Tile_Posicionado");
 		return this;
-
-		
 	}
 
 	public Partida posicionarMeepleEstrada(Lado lado) {
@@ -136,15 +138,19 @@ public class Partida {
 	public String getMosteiros() {
 		return null;
 	}
-
+	
+	public boolean isPrimeiroTurno() {
+		return countTurno==1;
+	}
+	
 	public String relatorioTabuleiro() {
-		if(countTurno==1){
+		if(isPrimeiroTurno()){
 			return proximoTile.toString();
 		}
 		if(getEstadoTurno().equals("Tile_Posicionado")){
 			return tileAnterior.toString()+proximoTile.toString(); 
 		}
-		if(!getEstadoTurno().equals("Tile_Posicionado")) {
+		if(!TilePosicionado) {
 		   return tileAnterior.toString(); 
 		}
 
