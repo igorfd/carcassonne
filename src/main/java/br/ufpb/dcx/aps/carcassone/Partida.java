@@ -99,7 +99,8 @@ public class Partida {
 			throw new ExcecaoJogo("Não pode reposicionar tile já posicionado");
 		}
 		tabuleiro.posicionar(tileReferencia, ladoTileReferencia, proximoTile);
-		setEstadoTurno("Tile_Posicionado");
+		//setEstadoTurno("Tile_Posicionado"); 
+		TilePosicionado = true; 
 		return this;
 
 		
