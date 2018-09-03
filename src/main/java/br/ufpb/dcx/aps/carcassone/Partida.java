@@ -10,17 +10,13 @@ public class Partida {
 	private TabuleiroFlexivel tabuleiro = new TabuleiroFlexivel("  ");
 	
 	private String estadoPartida = "Em_Andamento";
-	
-
 	private String estadoTurno = "Início_Turno";
+	
 	private boolean TilePosicionado = true;
 	private Jogador [] jogadores;
-	private int jogadorAtual = 0;
-	
+	private int jogadorAtual = 0;	
 	private int countTurno = 1;
-	private Tile tileAnterior;
 	
-
 	Partida(BolsaDeTiles tiles, Cor ...sequencia) {
 		this.tiles = tiles;
 		pegarProximoTile();
@@ -51,13 +47,13 @@ public class Partida {
 	}
 
 	public void verificaPartidaFinalizada() {
-		if (estadoPartida == "Partida_Finalizada") 
+		if (estadoPartida.equals("Partida_Finalizada")) 
 			throw new ExcecaoJogo("Partida finalizada");
 	}
 	
 	public String montaRelatorioTurno() {
 		return "Jogador: " + jogadores[jogadorAtual].getCor() +"\nTile: " + proximoTile + "\nStatus: "+ getEstadoTurno();
-	}
+	}                                                                      
 	
 	public String relatorioTurno() {
 		this.verificaPartidaFinalizada();
@@ -70,8 +66,7 @@ public class Partida {
 		if(TilePosicionado) {
 			throw new ExcecaoJogo("Não pode girar tile já posicionado");
 		}
-		if(proximoTile == null) {
-			estadoPartida = "Partida_Finalizada";
+		if(estadoPartida.equals("Partida_Finalizada")) {
 			throw new ExcecaoJogo("Não pode girar tiles com a partida finalizada");
 		}
 		proximoTile.girar();
@@ -79,7 +74,6 @@ public class Partida {
 	}
 	
 	private void pegarProximoTile() {
-		tileAnterior = proximoTile;
 		proximoTile = tiles.pegar();
 		if(proximoTile != null) {
 			proximoTile.reset();
@@ -144,17 +138,18 @@ public class Partida {
 	}
 	
 	public String relatorioTabuleiro() {
-		if(isPrimeiroTurno()){
+		return tabuleiro.toString();
+		/*if(isPrimeiroTurno()){
 			return proximoTile.toString();
 		}
 		if(getEstadoTurno().equals("Tile_Posicionado")){
 			return tileAnterior.toString()+proximoTile.toString(); 
 		}
-		if(!TilePosicionado) {
-		   return tileAnterior.toString(); 
+		if(!TilePosicionado) {			
+			return tileAnterior.toString(); 
 		}
-
-		return tileAnterior.toString();
+		System.out.println(tileAnterior.toString());
+		return tileAnterior.toString();*/
 		
 	}
 	
