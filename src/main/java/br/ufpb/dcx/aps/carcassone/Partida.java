@@ -1,5 +1,7 @@
 package br.ufpb.dcx.aps.carcassone;
 
+import java.util.ArrayList;
+
 import br.ufpb.dcx.aps.carcassone.tabuleiro.TabuleiroFlexivel;
 import br.ufpb.dcx.aps.carcassone.tabuleiro.Tile;
 
@@ -9,95 +11,95 @@ public class Partida {
 	private Tile proximoTile;
 	private TabuleiroFlexivel tabuleiro = new TabuleiroFlexivel("  ");
 	
-	private String estadoPartida = "Em_Andamento";
-	private String estadoTurno = "Início_Turno";
-	
-	private boolean TilePosicionado = true;
-	private Jogador [] jogadores;
-	private int jogadorAtual = 0;	
-	private int countTurno = 1;
-	
+	private ArrayList<Jogador> jogadores; 
+	private EstadoTurno estadoTurno = EstadoTurno.Tile_Posicionado;
+	private boolean partidaEmAndamento = true;
+	private Tile tileTurnoAtual;
+	int jogadorAtual = 0;
+
 	Partida(BolsaDeTiles tiles, Cor ...sequencia) {
 		this.tiles = tiles;
 		pegarProximoTile();
+		tileTurnoAtual = proximoTile;
 		jogadores = carregaJogadores(sequencia);
-		setEstadoPartida("Em_Andamento");
-		tabuleiro.adicionarPrimeiroTile(proximoTile);
-		
-
+		tabuleiro.adicionarPrimeiroTile(tileTurnoAtual);
 	}
-
-	public Jogador [] carregaJogadores(Cor... sequencia){
-		Jogador [] temp = new Jogador[sequencia.length];
-		for(int i =0; i < sequencia.length; i ++) {
-			temp[i] = new Jogador(sequencia[i].name()); 
+	
+	public ArrayList<Jogador> carregaJogadores(Cor... sequencia){
+		ArrayList<Jogador> temp = new ArrayList<Jogador>();
+		for(Cor cor: sequencia) {
+			temp.add(new Jogador(cor.name())); 
 		}
 		return temp;
 	}
+
 	
 	public String relatorioPartida() {
 		String relatorio = "Status: " + this.getEstadoPartida() + "\nJogadores: ";
-		for(int j = 0; j < jogadores.length; j++) {
-			if(j ==  jogadores.length-1) {
-				relatorio +=  jogadores[j].toString();
-			}else
-				relatorio += jogadores[j].toString() + "; ";
-			}
+		for(Jogador j :jogadores) { 
+			if(j == jogadores.get(jogadores.size()-1)){
+				relatorio +=  j.toString();
+			}else relatorio +=  j.toString() + "; ";
+		}
 		return relatorio;
 	}
 
-	public void verificaPartidaFinalizada() {
-		if (estadoPartida.equals("Partida_Finalizada")) 
-			throw new ExcecaoJogo("Partida finalizada");
+	private String getEstadoPartida() {
+		return (isPartidaEmAndamento() ? "Em_Andamento" : "Partida_Finalizada" );
 	}
 	
 	public String montaRelatorioTurno() {
-		return "Jogador: " + jogadores[jogadorAtual].getCor() +"\nTile: " + proximoTile + "\nStatus: "+ getEstadoTurno();
-	}                                                                      
+		Jogador proximoJogador = jogadores.get(jogadorAtual % jogadores.size());
+		return "Jogador: " + proximoJogador.getCor() +"\nTile: " + tileTurnoAtual.toString() + "\nStatus: "+ getEstadoTurno();
+	}
+	
+	public void verificaPartidaFinalizou() {
+		if(!isPartidaEmAndamento()){
+			throw new ExcecaoJogo("Partida finalizada");
+		}
+	}
 	
 	public String relatorioTurno() {
-		this.verificaPartidaFinalizada();
-		if (TilePosicionado) 
-			setEstadoTurno("Tile_Posicionado");
+		verificaPartidaFinalizou();
 		return montaRelatorioTurno();
 	}
-
+	
+	public boolean isTilePosicionado() {
+		return getEstadoTurno() == EstadoTurno.Tile_Posicionado;
+	}
+	
 	public Partida girarTile() {
-		if(TilePosicionado) {
+		if(isTilePosicionado())
 			throw new ExcecaoJogo("Não pode girar tile já posicionado");
-		}
-		if(estadoPartida.equals("Partida_Finalizada")) {
+		if(!isPartidaEmAndamento()){
 			throw new ExcecaoJogo("Não pode girar tiles com a partida finalizada");
 		}
 		proximoTile.girar();
 		return this;
 	}
-	
+
 	private void pegarProximoTile() {
 		proximoTile = tiles.pegar();
-		if(proximoTile != null) {
+		if(proximoTile == null) {
+			setPartidaEmAndamento(false);
+		}else{
+			
 			proximoTile.reset();
-		}else {
-			setEstadoPartida("Partida_Finalizada");
 		}
+		tileTurnoAtual = proximoTile;
 	}
 
-	
 	public Partida finalizarTurno() {
-		setEstadoPartida("Em_Andamento");
-		TilePosicionado = false;
 		pegarProximoTile();
-		setCountTurno(countTurno+=1);
-		jogadorAtual++;
+		jogadorAtual++;		
+		setEstadoTurno(EstadoTurno.Início_Turno);
 		return this;
 	}
 
 	public Partida posicionarTile(Tile tileReferencia, Lado ladoTileReferencia) {
-		if(TilePosicionado) {
-			throw new ExcecaoJogo("Não pode reposicionar tile já posicionado");
-		}
 		tabuleiro.posicionar(tileReferencia, ladoTileReferencia, proximoTile);
-		setEstadoTurno("Tile_Posicionado");
+		setEstadoTurno(EstadoTurno.Tile_Posicionado);
+		
 		return this;
 	}
 
@@ -132,55 +134,23 @@ public class Partida {
 	public String getMosteiros() {
 		return null;
 	}
-	
-	public boolean isPrimeiroTurno() {
-		return countTurno==1;
-	}
-	
+
 	public String relatorioTabuleiro() {
 		return tabuleiro.toString();
-		/*if(isPrimeiroTurno()){
-			return proximoTile.toString();
-		}
-		if(getEstadoTurno().equals("Tile_Posicionado")){
-			return tileAnterior.toString()+proximoTile.toString(); 
-		}
-		if(!TilePosicionado) {			
-			return tileAnterior.toString(); 
-		}
-		System.out.println(tileAnterior.toString());
-		return tileAnterior.toString();*/
-		
 	}
 	
-	public String getEstadoPartida() {
-		return estadoPartida;
+	public boolean isPartidaEmAndamento() {
+		return partidaEmAndamento;
 	}
 
-	public void setEstadoPartida(String estadoPartida) {
-		this.estadoPartida = estadoPartida;
+	public void setPartidaEmAndamento(boolean partidaEmAndamento) {
+		this.partidaEmAndamento = partidaEmAndamento;
 	}
-
-	public String getEstadoTurno() {
+	public EstadoTurno getEstadoTurno() {
 		return estadoTurno;
 	}
-
-	public void setEstadoTurno(String estadoTurno) {
+	public void setEstadoTurno(EstadoTurno estadoTurno) {
 		this.estadoTurno = estadoTurno;
 	}
-
-	public String getEstadoTile() {
-		return (TilePosicionado) ? "Tile_Posicionado": "Tile_Não_Posicionado";
-	}
-
-	public void setEstadoTile(boolean estadoTile) {
-		this.TilePosicionado = estadoTile;
-	}
-	public int getCountTurno() {
-		return countTurno;
-	}
-
-	public void setCountTurno(int countTurno) {
-		this.countTurno = countTurno;
-	}
+	
 }
